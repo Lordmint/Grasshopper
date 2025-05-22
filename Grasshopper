@@ -1,0 +1,50 @@
+import requests
+import time
+import random
+
+ACCESS_TOKEN = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkJseGtPeW9QaWIwMlNzUlpGeHBaN2JlSzJOSEJBMSJ9.eyJ1c2VySWQiOiIybnNNa3I5bmFiUm1XQ3FVMEhMb0gxV2lmY1AiLCJlbWFpbCI6Im9mb3JpY2hpZWZhbGJlcnQ5ODJAZ21haWwuY29tIiwic2NvcGUiOiJVU0VSIiwiaWF0IjoxNzQ3OTA1MjcwLCJuYmYiOjE3NDc5MDUyNzAsImV4cCI6MTc3OTAwOTI3MCwiYXVkIjoid3luZC11c2VycyIsImlzcyI6Imh0dHBzOi8vd3luZC5zMy5hbWF6b25hd3MuY29tL3B1YmxpYyJ9.PO_aEtXL9_P1gYDeDhvhB2_DLfRxGZ9bNN2vEg3fFqN9very2Tirq5fLwB84q-rjdfZNRX2DIfCfowAUyY4h_fVcjjK_WN9IU3w1Zt7nberv87Drwk-tqk-0HLQ--OvOof9I9ROLcDxIMnC7varPIiC4dcxDG15nExfqf8Pxozqg2eN_y9Pd1komZFSQ2hPRU6kqf3v4zHlKq_-nfp9EoeTVlBCb0SU017bfOe0rW7criPe9oxlJ--StMxyLgF6M_ecaVqcBGnLNOdMp-kCE-7aBhLzNhscGR8iewWh3dGk2m0rbSrNfnFMtstyV17YdKVwwzgGBDzDsnjpP3lYVPQ"
+
+HEADERS = {
+    "Authorization": f"Bearer {ACCESS_TOKEN}",
+    "Content-Type": "application/json"
+}
+
+GRAPHQL_URL = "https://api.getgrass.io/graphql"
+
+QUERY = {
+    "operationName": "Me",
+    "query": """
+        query Me {
+          me {
+            id
+            email
+            referralCode
+            score
+            referredUsers {
+              id
+            }
+          }
+        }
+    """,
+    "variables": {}
+}
+
+def fetch_profile():
+    try:
+        response = requests.post(GRAPHQL_URL, json=QUERY, headers=HEADERS)
+        data = response.json()
+        if "errors" in data:
+            print("[!] Error:", data["errors"])
+        else:
+            user = data['data']['me']
+            print(f"[+] User: {user['email']} | Score: {user['score']} | Referrals: {len(user['referredUsers'])}")
+    except Exception as e:
+        print("[!] Exception:", str(e))
+
+if __name__ == "__main__":
+    print("[+] Starting Grass bot (single wallet)...")
+    while True:
+        fetch_profile()
+        wait_time = random.randint(60, 120)
+        print(f"[i] Sleeping for {wait_time} seconds...\n")
+        time.sleep(wait_time)
